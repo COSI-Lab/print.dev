@@ -15,7 +15,6 @@
 	background-color:#000000;
 	height:40px;
 	width:100%;
-	
 }
 #clarkson-title, #CSlabsNav{
 	color:white;
@@ -44,10 +43,15 @@
 	float:left;
 }
 #body{
-	border:1px inset #003300;
 	margin:10px;
+  position:absolute;
+  top:150px;
+  left:150px;
+
 	
 }
 #footer{
-	
+	position:absolute;
+  left:100px;
+  bottom:100px;
 }
