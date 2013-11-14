@@ -4,4 +4,10 @@ New Print Server Development Progress:
 - Made a github to share info
 - Discussed goals
 - Began website front-end in html/javascript
-- Began database back-end in python
+- Began research on server basics
+
+11/14/13
+- Began research on CUPS, python, and mysql
+- 
+
+
