@@ -8,6 +8,6 @@ New Print Server Development Progress:
 
 11/14/13
 - Began research on CUPS, python, and mysql
-- Semi finished begin.html 
-
+- Got a basic website working
+- Designed a basic map of steps to take
 
