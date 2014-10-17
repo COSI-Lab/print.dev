@@ -1,0 +1,82 @@
+body
+{
+background-color: #223322;
+color: #eeeebb;
+}
+
+a:link
+{
+color: #44ff44;
+}
+
+a:visited
+{
+color: #227722;
+}
+
+#layout
+{
+position: absolute;
+top: 0px;
+left: 0px;
+width: 100%;
+height: 100%;
+border: 1px solid #557777;
+border-collapse: collapse;
+}
+
+#layout td
+{
+border: 1px solid #557777;
+vertical-align: top;
+text-align: left;
+}
+
+#layout #header /* XXX Resolving to higher priority */
+{
+text-align: center;
+font-size: 200%;
+height: 1em;
+}
+
+#ops, #pending
+{
+width: 20%;
+}
+
+#body iframe
+{
+width: 100%;
+height: 100%;
+border: 0px;
+}
+
+.flash
+{
+width: 100%;
+height: 2em;
+vertical-align: middle;
+text-align: center;
+}
+
+.flc_error
+{
+background-color: #440000;
+color: #cccccc;
+}
+
+.flc_success
+{
+background-color: #004400;
+color: #cccccc;
+}
+
+#status
+{
+font-style: italic;
+font-size: 80%;
+position: fixed;
+bottom: 0px;
+width: 100%;
+background-color: #220000
+}

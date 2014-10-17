@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>{% block title %}{% endblock %}</title>
+		<link rel="stylesheet" type="text/css" href="/static/style.css"/>
+		<script type="text/javascript" src="/static/lib.js"></script>
+	</head>
+	<body>
+		{% with messages = g.flashes %}
+			{% for msg, cat in messages %}
+				<div class="flash flc_{{ cat }}">{{ msg|safe }}</div>
+			{% endfor %}
+		{% endwith %}
+		{% block content %}{% endblock %}
+		<div id="status">Logged in as {{ g.user.username }}</div>
+	</body>
+</html>

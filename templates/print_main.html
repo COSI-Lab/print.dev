@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>CSLabs Print Server</title>
+		<link rel="stylesheet" type="text/css" href="/static/style.css"/>
+		<script type="text/javascript" src="/static/lib.js"></script>
+	</head>
+	<body>
+		<table id="layout">
+			<tr>
+				<td colspan="3" id="header">
+					CSLabs Print Server
+				</td>
+			</tr>
+			<tr>
+				<td id="ops">
+					<ul>
+						{% for opname, url in operations %}
+							<li><a href="{{ url }}" target="opframe">{{ opname }}</a></li>
+						{% endfor %}
+					</ul>
+				</td>
+				<td id="body">
+					<iframe src="/print/op/null/" name="opframe">iframes are required to use this site properly</iframe>
+				</td>
+				<td id="pending">
+					Pending operations...
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
