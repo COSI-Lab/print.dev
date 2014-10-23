@@ -25,7 +25,7 @@ Sometime between 11/14/13 and 10/23/14
 
 10/23/14
  - Began permanently hosting webpage
- - Edited print.py in /srv/wsgi/print/print.py and conf.py to include printing a test page
+ - Edited /srv/wsgi/print/print.py and conf.py to include printing a test page
  - Printed a test page from website through CUPS
  - Implemented pykota backend for user quota management and initialized test account
  - Printed a test page using pykota
