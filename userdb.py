@@ -63,6 +63,11 @@ to columns in the users table:
 -user.overcharge is the user's overcharge factor (how much of their credit they are paying
  per print job; see pykota's documentation for more details. This value may be negative!)
  
+Two special user objects exist: they are User.ROOT and User.NOBODY. Their IDs are User.ID_ROOT
+and User.ID_NOBODY respectively; they represent the root user with all access privileges and
+the default account assumed by users that haven't presented credentials to log in to a particular
+account, respectively. User.ROOT's access token is specialized; see below.
+
 Groups are very similar objects in that they have an ID and a name, and can thusly be gotten:
 
 	group = Group.FromID(group_id)
@@ -174,6 +179,11 @@ which is responsible for granting or denying access, or None if no such AccessEn
 		print 'Access '+('revoked' if ae.revoke else 'granted')+' at level '+str(ae.level)
 	else:
 		print 'Access denied by default (no entries)'
+		
+The root user (User.ROOT) has a special-cased AccessToken (actually a GrantAllAccessToken)
+that grants that user all privileges in the system. However, the root user, by default, has
+no password. Use this account with care; the system will not prevent it from doing anything,
+even harmful things!
 '''
 
 import sqlite3
@@ -277,6 +287,12 @@ class AccessToken(object):
 			return False
 		return not ent.revoke
 
+class GrantAllAccessToken(AccessToken):
+	def __init__(self):
+		pass
+	def GetAccess(self, access):
+		return True
+
 class Group(object):
 	def __init__(self, id, name, inherit):
 		self.id      = id
@@ -332,6 +348,8 @@ class Group(object):
 		return AccessToken.FromGroup(self)
 
 class User(object):
+	ID_ROOT = 1
+	ID_NOBODY = 2
 	def __init__(self, id, username, password, email, balance, overcharge):
 		self.id         = id
 		self.username   = username
@@ -379,9 +397,12 @@ class User(object):
 		cur.execute('REMOVE FROM acmembership WHERE gid=? AND uid=?', (group, self.id))
 		db.commit()
 	def AccessToken(self):
+		# XXX Special casing (also see below)
+		if self.id == self.ID_ROOT:
+			return GrantAllAccessToken()
 		return AccessToken.FromUser(self)
 
 # Constants--do not touch
 
-User.ROOT   = User.FromID(1)
-User.NOBODY = User.FromID(2)
+User.ROOT   = User.FromID(User.ID_ROOT)
+User.NOBODY = User.FromID(User.ID_NOBODY)
