@@ -11,3 +11,20 @@ New Print Server Development Progress:
 - Got a basic website working
 - Designed a basic map of steps to take
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+10/23/14
+ - Edited print.py in /srv/wsgi/print/print.py and conf.py
+ 
