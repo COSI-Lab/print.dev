@@ -12,3 +12,4 @@ The following are defined:
 '''
 
 DEFAULT_BALANCE = 200
+ALLOWED_EXTENSIONS = set(['pdf', 'txt', 'png', 'jpeg', 'jpg', 'rtf'])
