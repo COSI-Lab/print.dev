@@ -12,4 +12,5 @@ The following are defined:
 '''
 
 DEFAULT_BALANCE = 200
-ALLOWED_EXTENSIONS = set(['pdf', 'txt', 'png', 'jpeg', 'jpg', 'rtf'])
+ALLOWED_EXTENSIONS = sorted(["txt", "pdf", "ps", "png", "jpg", "jpeg", "gif", "tex", "prn", "c", "cpp", "h", "hpp", "java", "pl", "py", "php", "sh", "b", "xml", "conf", "asm", "bat", "bib", "cs", "erl", "ini", "js", "lisp", "sql", "m", "pas", "patch", "pro", "scm", "hs"])
+VER_CODE_LEN = 16

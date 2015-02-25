@@ -71,6 +71,12 @@ background-color: #004400;
 color: #cccccc;
 }
 
+.flc_warning
+{
+background-color: #777700;
+color: #cccccc;
+}
+
 #status
 {
 font-style: italic;

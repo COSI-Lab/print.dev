@@ -1,4 +1,7 @@
 import hashlib
+import smtplib
+import base64
+#import urllib
 
 from flask import Flask, render_template, redirect, url_for, request, g, flash
 from userdb import User, Group, AccessEntry, AccessToken, DBError, NoSuchEntity
@@ -48,6 +51,9 @@ def get_user_session(request):
 	user=sess.User()
 	return user, sess
 
+# Validates email submitted by user
+def validate_email(email):
+	return email.endswith('@clarkson.edu')
 # 
 @app.before_request
 def do_get_user_session():
@@ -66,7 +72,7 @@ def print_main():
 	return render_template('print_main.html', operations=[['Log In/Out', url_for('loginout')],
 														  ['Register', url_for('register')],
 														  ['Print File', url_for('print_file')],
-														  ['Print a test page', url_for('test1')],
+														  ['Print a test page', url_for('print_test')],
 														  ['Test operation 2', url_for('test2')]])
 
 @app.route('/print/op/null/')
@@ -92,10 +98,15 @@ def login():
 			flash('Invalid username (did you <a href="%s">register</a>?)'%(url_for('register')), 'error')
 		else:
 			if newuser.password == pwdhash:
-				g.user = newuser
-				g.session.uid = g.user.id
-				g.session.Update()
-				flash('Logged in as %s'%(newuser.username), 'success')
+				if newuser.status == User.ST_DISABLED:
+					flash('Your account has been disabled. Please contact an administrator.', 'error')
+				else:
+					if newuser.status == User.ST_UNVERIFIED:
+						flash('Your account is unverified; you will not be allowed to print. Please check your email for a verification email.', 'warning')
+					g.user = newuser
+					g.session.uid = g.user.id
+					g.session.Update()
+					flash('Logged in as %s'%(newuser.username), 'success')
 			else:
 				flash('Invalid password', 'error')
 	return render_template('op_login.html')
@@ -121,32 +132,64 @@ def register():
 			try:
 				user = User.FromName(username)
 			except NoSuchEntity:
-				newuser = User.Create(username, hashlib.sha512(password).hexdigest(), email, conf.DEFAULT_BALANCE)
-				flash('Created account %s'%(newuser.username), 'success')
+				if validate_email(email):
+					newuser = User.Create(username, hashlib.sha512(password).hexdigest(), email, 0, vcode=base64.b64encode(os.urandom(conf.VER_CODE_LEN)), status=User.ST_UNVERIFIED)
+					try:
+						smtp=smtplib.SMTP('mail.clarkson.edu')
+					except Exception:
+						flash('An error occurred while sending an email. This is probably a bug; tell someone!', 'error')
+					else:
+						smtp.sendmail('printer@cslabs.clarkson.edu', [newuser.email],render_template('verifemail.txt', vcode=newuser.vcode, username=newuser.username, email=newuser.email)) 
+					flash('Created account %s. A verification email has been sent. Check your email.'%(newuser.username), 'success')
+				else: 
+					flash('Invalid Clarkson Email Address', 'error')
 			else:
 				flash('User already exists', 'error')
 	return render_template('op_register.html')
 			
 
-@app.route('/print/op/test1/')
-def test1():
-	os.system('lp -U %s /home/vaillap/test.txt'%g.user.username) 
-	return 'You just printed a test page!  How do you feel about yourself?'
+@app.route('/print/op/print_test/')
+def print_test():
+	if g.user.status != User.ST_NORMAL:
+		return 'You can\'t do that! Go away!'
+	else:
+		os.system('lp -U %s /home/vaillap/test.txt'%g.user.username) 
+		return 'You just printed a test page!  How do you feel about yourself?'
 
 @app.route('/print/op/print/', methods=['GET', 'POST'])
 def print_file():
-	if request.method == 'POST':
+	if g.user.status != User.ST_NORMAL:
+		flash('Account disabled or not verified', 'error')
+	elif request.method == 'POST':
 		rfile = request.files['file']
 		if rfile.filename.rpartition('.')[2] not in conf.ALLOWED_EXTENSIONS:
 			flash('Bad file extension (consider printing to PDF)', 'error')
 		else:
-			fname = os.tmpnam()
+			fname = os.tmpnam()+'.'+rfile.filename.rpartition('.')[2]
 			request.files['file'].save(fname)
 			os.system('lp -U "%s" %s'%(g.user.username, fname))
 			os.unlink(fname)
-			flash('Printed successfully', 'success')
+			flash('Sent to Printer', 'success')
 	return render_template('op_print.html')
 	
+@app.route('/print/op/verify')
+def verify():
+	username = request.args['username']
+	vcode = request.args['vcode']
+	try:
+		user = User.FromName(username)
+	except DBError:
+		return 'User does not exist'
+	else:
+		if vcode == user.vcode:
+			user.status = User.ST_NORMAL
+			user.balance = conf.DEFAULT_BALANCE
+			user.Update()
+			return 'Success! Your account was activated.'
+		else:
+			return 'Bad verification code'
+	return 'What the hell just happened?' 
+
 @app.route('/print/op/test2/')
 def test2():
 	return 'Hello from test2!'
