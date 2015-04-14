@@ -353,6 +353,7 @@ class User(object):
 	ST_NORMAL = 0
 	ST_DISABLED = 1
 	ST_UNVERIFIED = 2
+	ST_PWRESET = 3
 	def __init__(self, id, username, password, email, balance, overcharge, vcode, status):
 		self.id         = id
 		self.username   = username
@@ -370,6 +371,10 @@ class User(object):
 	def FromName(cls, name):
 		cur.execute('SELECT id, username, password, email, balance, overcharge, vcode, status FROM users WHERE username = ?', (name,))
 		return _instantiate(cls, cur.fetchall(), 'name', name)
+	@classmethod
+	def FromEmail(cls, email):
+		cur.execute('SELECT id, username, password, email, balance, overcharge, vcode, status FROM users WHERE email = ?', (email,))
+		return _instantiate(cls, cur.fetchall(), 'email', email)
 	@classmethod
 	def Create(cls, username, password, email, balance, overcharge=1, vcode=None, status=ST_NORMAL):
 		cur.execute('INSERT INTO users (username, password, email, limitby, balance, overcharge, vcode, status) VALUES(?, ?, ?, "balance", ?, ?, ?, ?)', (username, password, email, balance, overcharge, vcode, status))

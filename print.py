@@ -72,8 +72,9 @@ def print_main():
 	return render_template('print_main.html', operations=[['Log In/Out', url_for('loginout')],
 														  ['Register', url_for('register')],
 														  ['Print File', url_for('print_file')],
-														  ['Print a test page', url_for('print_test')],
-														  ['Test operation 2', url_for('test2')]])
+														  ['Test operation 2', url_for('test2')],
+														  ['Set password', url_for('passwd')],
+														  ['Reset account password', url_for('reset_pw')]])
 
 @app.route('/print/op/null/')
 def null():
@@ -107,6 +108,7 @@ def login():
 					g.session.uid = g.user.id
 					g.session.Update()
 					flash('Logged in as %s'%(newuser.username), 'success')
+					return redirect(url_for('print_file'))
 			else:
 				flash('Invalid password', 'error')
 	return render_template('op_login.html')
@@ -114,6 +116,7 @@ def login():
 @app.route('/print/op/logout/', methods=['GET', 'POST'])
 def logout():
 	if request.method == 'POST':
+		g.user = User.NOBODY
 		g.session.uid = User.NOBODY.id
 		g.session.Update()
 		flash('Logged out', 'success')
@@ -136,17 +139,80 @@ def register():
 					newuser = User.Create(username, hashlib.sha512(password).hexdigest(), email, 0, vcode=base64.b64encode(os.urandom(conf.VER_CODE_LEN)), status=User.ST_UNVERIFIED)
 					try:
 						smtp=smtplib.SMTP('mail.clarkson.edu')
+						smtp.sendmail('printer@cslabs.clarkson.edu', [newuser.email],render_template('verifemail.txt', vcode=newuser.vcode, username=newuser.username, email=newuser.email)) 
 					except Exception:
 						flash('An error occurred while sending an email. This is probably a bug; tell someone!', 'error')
 					else:
-						smtp.sendmail('printer@cslabs.clarkson.edu', [newuser.email],render_template('verifemail.txt', vcode=newuser.vcode, username=newuser.username, email=newuser.email)) 
-					flash('Created account %s. A verification email has been sent. Check your email.'%(newuser.username), 'success')
+						flash('Created account %s. A verification email has been sent. Check your email.'%(newuser.username), 'success')
 				else: 
 					flash('Invalid Clarkson Email Address', 'error')
 			else:
 				flash('User already exists', 'error')
 	return render_template('op_register.html')
 			
+@app.route('/print/op/resetpw/', methods=['GET', 'POST'])
+def reset_pw():
+	if request.method == 'POST':
+		try:
+			email = request.form['email']
+		except KeyError:
+			flash('Bad request', 'error')
+		else:
+			try:
+				user = User.FromEmail(email)
+			except NoSuchEntity:
+				flash('User with that email does not exist.', 'error')
+			else:
+				if user.status == User.ST_PWRESET:
+					flash('A password reset is already in progress for this account.', 'error')
+				elif user.status != User.ST_NORMAL:
+					flash('This account is not activated yet. Contact an administrator if you need to reset it.', 'error')
+				else:
+					user.status = User.ST_PWRESET
+					user.vcode = base64.b64encode(os.urandom(conf.VER_CODE_LEN))
+					user.Update()
+					try:
+						smtp = smtplib.SMTP('mail.clarkson.edu')
+						smtp.sendmail('printer@cslabs.clarkson.edu', [user.email], render_template('pwresetemail.txt', email = user.email, vcode = user.vcode, username = user.username))
+					except Exception:
+						flash('An error occured while sending an email; this is a bug! Tell someone!', 'error')
+					else:
+						flash('An email has been sent with further instructions; please check your mail now.', 'success')
+	return render_template('op_resetpw.html')
+
+@app.route('/print/op/resetverify/')
+def reset_verify():
+	username = request.args['username']
+	vcode = request.args['vcode']
+	try:
+		user = User.FromName(username)
+	except NoSuchEntity:
+		return 'User does not exist'
+	if user.vcode != vcode:
+		return 'Verification codes do not match'
+	g.user = user
+	g.user.status = User.ST_NORMAL
+	g.user.Update()
+	g.session.uid = g.user.id
+	g.session.Update()
+	flash('You are now logged in as yourself; when you are able, you may want to <a href="%s">set your password</a>.'%(url_for('passwd')), 'success')
+	return render_template('op_resetverify.html')
+
+@app.route('/print/op/passwd/', methods=['GET', 'POST'])
+def passwd():
+	if g.user.id in (User.NOBODY.id, User.ROOT.id):
+		flash('You cannot set the password of this account.', 'error')
+	else:
+		if request.method == 'POST':
+			try:
+				password = request.form['password']
+			except KeyError:
+				flash('Bad request', 'error')
+			else:
+				g.user.password = hashlib.sha512(password).hexdigest()
+				g.user.Update()
+				flash('Password set', 'success')
+	return render_template('op_passwd.html')
 
 @app.route('/print/op/print_test/')
 def print_test():
@@ -158,6 +224,10 @@ def print_test():
 
 @app.route('/print/op/print/', methods=['GET', 'POST'])
 def print_file():
+	if g.user.status == User.ST_PWRESET:
+		flash('A password reset was attempted on this account. It will be cleared.', 'warning')
+		g.user.status = User.ST_NORMAL
+		g.user.Update()
 	if g.user.status != User.ST_NORMAL:
 		flash('Account disabled or not verified', 'error')
 	elif request.method == 'POST':

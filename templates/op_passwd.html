@@ -1,0 +1,21 @@
+{% extends "frame.html" %}
+{% block title %}Set Password{% endblock %}
+{% block content %}
+<script type="text/javascript">
+function validate() {
+	var form = document.forms.passwdform;
+	if(form.password.value != form.confpassword.value) {
+		alert("Passwords do not match.");
+		return false;
+	}
+	return true;
+}
+</script>
+<form name="passwdform" action="?" method="POST" onsubmit="return validate();">
+	<table>
+		<tr><td>New password:</td><td><input type="password" name="password"/></td></tr>
+		<tr><td>Confirm password:</td><td><input type="password" name="confpassword"/></td></tr>
+	</table>
+	<button type="submit" name="submit">Set Password</button>
+</form>
+{% endblock %}
