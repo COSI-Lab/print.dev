@@ -364,6 +364,12 @@ class User(object):
 		self.balance    = balance
 		self.overcharge = overcharge
 	@classmethod
+	def All(cls):
+		ret = []
+		for row in cur.execute('SELECT id, username, password, email, balance, overcharge, vcode, status FROM users'):
+			ret.append(cls(*row))
+		return ret
+	@classmethod
 	def FromID(cls, id):
 		cur.execute('SELECT id, username, password, email, balance, overcharge, vcode, status FROM users WHERE id = ?', (id,))
 		return _instantiate(cls, cur.fetchall(), 'id', id)

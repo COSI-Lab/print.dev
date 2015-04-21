@@ -129,6 +129,7 @@ def register():
 			username = request.form['username']
 			password = request.form['password']
 			email = request.form['email']
+			smtp=smtplib.SMTP('mail.clarkson.edu') #Moved up to avoid user ending session before email can be sent...
 		except KeyError:
 			flash('Bad request', 'error')
 		else:
@@ -138,7 +139,6 @@ def register():
 				if validate_email(email):
 					newuser = User.Create(username, hashlib.sha512(password).hexdigest(), email, 0, vcode=base64.b64encode(os.urandom(conf.VER_CODE_LEN)), status=User.ST_UNVERIFIED)
 					try:
-						smtp=smtplib.SMTP('mail.clarkson.edu')
 						smtp.sendmail('printer@cslabs.clarkson.edu', [newuser.email],render_template('verifemail.txt', vcode=newuser.vcode, username=newuser.username, email=newuser.email)) 
 					except Exception:
 						flash('An error occurred while sending an email. This is probably a bug; tell someone!', 'error')
