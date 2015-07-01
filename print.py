@@ -54,32 +54,37 @@ def get_user_session(request):
 # Validates email submitted by user
 def validate_email(email):
 	return email.endswith('@clarkson.edu')
-# 
+# Before running view: assign g.user and g.session
 @app.before_request
 def do_get_user_session():
 	g.user, g.session = get_user_session(request)
 
+# Before running view: assign g.conf for configuration
 @app.before_request
 def do_set_global_conf():
 	g.conf = conf
 
+# Root view
 @app.route('/')
 def index():
 	return redirect(url_for('print_main'))
 	
+# View for /print/ (a frame set)
 @app.route('/print/')
 def print_main():
 	return render_template('print_main.html', operations=[['Log In/Out', url_for('loginout')],
 														  ['Register', url_for('register')],
 														  ['Print File', url_for('print_file')],
-														  ['Test operation 2', url_for('test2')],
 														  ['Set password', url_for('passwd')],
-														  ['Reset account password', url_for('reset_pw')]])
+														  ['Reset account password', url_for('reset_pw')],
+														  ['Contact maintainers', url_for('contact')]])
 
+# Null operation view
 @app.route('/print/op/null/')
 def null():
 	return render_template('op_null.html')
 	
+# View that redirects to login or logout operations
 @app.route('/print/op/loginout/', methods=['GET', 'POST'])
 def loginout():
 	if g.user.id == User.NOBODY.id:
@@ -87,6 +92,7 @@ def loginout():
 	else:
 		return redirect(url_for('logout'))
 
+# Login view operation
 @app.route('/print/op/login/', methods=['GET', 'POST'])
 def login():
 	if request.method == 'POST':
@@ -113,6 +119,7 @@ def login():
 				flash('Invalid password', 'error')
 	return render_template('op_login.html')
 
+# Logout view operation
 @app.route('/print/op/logout/', methods=['GET', 'POST'])
 def logout():
 	if request.method == 'POST':
@@ -122,6 +129,7 @@ def logout():
 		flash('Logged out', 'success')
 	return render_template('op_logout.html')
 	
+# Registration view operation
 @app.route('/print/op/register/', methods=['GET', 'POST'])
 def register():
 	if request.method == 'POST':
@@ -129,7 +137,6 @@ def register():
 			username = request.form['username']
 			password = request.form['password']
 			email = request.form['email']
-			smtp=smtplib.SMTP('mail.clarkson.edu') #Moved up to avoid user ending session before email can be sent...
 		except KeyError:
 			flash('Bad request', 'error')
 		else:
@@ -139,6 +146,7 @@ def register():
 				if validate_email(email):
 					newuser = User.Create(username, hashlib.sha512(password).hexdigest(), email, 0, vcode=base64.b64encode(os.urandom(conf.VER_CODE_LEN)), status=User.ST_UNVERIFIED)
 					try:
+						smtp=smtplib.SMTP('mail.clarkson.edu') #Moved up to avoid user ending session before email can be sent...
 						smtp.sendmail('printer@cslabs.clarkson.edu', [newuser.email],render_template('verifemail.txt', vcode=newuser.vcode, username=newuser.username, email=newuser.email)) 
 					except Exception:
 						flash('An error occurred while sending an email. This is probably a bug; tell someone!', 'error')
@@ -150,6 +158,7 @@ def register():
 				flash('User already exists', 'error')
 	return render_template('op_register.html')
 			
+# Password reset view operation
 @app.route('/print/op/resetpw/', methods=['GET', 'POST'])
 def reset_pw():
 	if request.method == 'POST':
@@ -180,6 +189,7 @@ def reset_pw():
 						flash('An email has been sent with further instructions; please check your mail now.', 'success')
 	return render_template('op_resetpw.html')
 
+# Password reset verification view operation
 @app.route('/print/op/resetverify/')
 def reset_verify():
 	username = request.args['username']
@@ -198,6 +208,7 @@ def reset_verify():
 	flash('You are now logged in as yourself; when you are able, you may want to <a href="%s">set your password</a>.'%(url_for('passwd')), 'success')
 	return render_template('op_resetverify.html')
 
+# Password change view operation
 @app.route('/print/op/passwd/', methods=['GET', 'POST'])
 def passwd():
 	if g.user.id in (User.NOBODY.id, User.ROOT.id):
@@ -214,6 +225,7 @@ def passwd():
 				flash('Password set', 'success')
 	return render_template('op_passwd.html')
 
+# Test page print view operation
 @app.route('/print/op/print_test/')
 def print_test():
 	if g.user.status != User.ST_NORMAL:
@@ -222,6 +234,7 @@ def print_test():
 		os.system('lp -U %s /home/vaillap/test.txt'%g.user.username) 
 		return 'You just printed a test page!  How do you feel about yourself?'
 
+# Print entry point view operation
 @app.route('/print/op/print/', methods=['GET', 'POST'])
 def print_file():
 	if g.user.status == User.ST_PWRESET:
@@ -242,6 +255,7 @@ def print_file():
 			flash('Sent to Printer', 'success')
 	return render_template('op_print.html')
 	
+# Registration verification view operation
 @app.route('/print/op/verify')
 def verify():
 	username = request.args['username']
@@ -260,6 +274,21 @@ def verify():
 			return 'Bad verification code'
 	return 'What the hell just happened?' 
 
+# Contact view operatoin
+@app.route('/print/op/contact', methods=['GET', 'POST'])
+def contact():
+	if request.method == 'POST':
+		try:
+			body = request.form['body']
+		except KeyError:
+			flash('Bad request', 'error')
+		else:
+			smtp = smtplib.SMTP('mail.clarkson.edu')
+			smtp.sendmail('printer@cslabs.clarkson.edu', conf.MAINTAINERS, render_template('contactemail.txt', body = body, username = g.user.username))
+			flash('Message sent successfully!', 'success')
+	return render_template('op_contact.html')
+
+# Test2 view operation
 @app.route('/print/op/test2/')
 def test2():
 	return 'Hello from test2!'

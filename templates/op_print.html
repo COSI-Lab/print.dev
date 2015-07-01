@@ -1,6 +1,20 @@
 {% extends "frame.html" %}
 {% block title %}Login{% endblock %}
 {% block content %}
+{% if g.user.balance < 20 %}
+	{% set nag_contact = true %}
+	{% if g.user.balance <= 0 %}
+		<div class = "flash flc_error">
+	{% else %}
+		<div class = "flash flc_warning">
+	{% endif %}
+{% else %}
+	<div class = "flash flc_note">
+{% endif %}
+You have {{ g.user.balance }} pages remaining.
+{% if nag_contact %}
+	For more balance or help, you can always contact a maintainer in person or <a href="/print/op/contact">by mail</a>.
+{% endif %}
 <form action="?" method="POST" enctype="multipart/form-data">
 	<table>
 		<tr><td>File:</td><td><input type="file" name="file"/></td></tr>

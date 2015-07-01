@@ -44,6 +44,11 @@ height: 1em;
 width: 20%;
 }
 
+#body
+{
+height: 100%;
+}
+
 #body iframe
 {
 width: 100%;
@@ -77,6 +82,12 @@ background-color: #777700;
 color: #cccccc;
 }
 
+.flc_note
+{
+background-color: #000044;
+color #cccccc;
+}
+
 #status
 {
 font-style: italic;
@@ -85,4 +96,14 @@ position: fixed;
 bottom: 0px;
 width: 100%;
 background-color: #220000
+}
+
+.spinner
+{
+text-align: right;
+}
+
+#pleasewait
+{
+transition: height 0.5s ease;
 }

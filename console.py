@@ -4,23 +4,75 @@ import getpass
 import traceback
 import fnmatch
 import hashlib
+import time
+import sys
 
 import userdb
 
 def match_users(pat):
+	res = set()
+	for part in pat.split(','):
+		res |= match_terms(part)
+	return res
+
+def match_terms(pat):
 	# XXX reimplement?
-	import fnmatch
+	users = userdb.User.All()
+	uset = set(users)
+	ret = set(users)
+	for part in pat.split(';'):
+		if part[0] == '!':
+			pset = uset - set(match_pat(part[1:], users))
+		else:
+			pset = set(match_pat(part, users))
+		ret &= pset
+	return ret
+
+def match_pat(pat, users):
 	if ':' in pat:
 		tp, col, pat = pat.partition(':')
 	else:
 		tp = 'U'
 	if tp == 'U':
-		return filter(lambda u, pat=pat, fnmatch=fnmatch: fnmatch.fnmatch(str(u.username), pat), userdb.User.All())
+		return filter(lambda u, pat=pat, fnmatch=fnmatch: fnmatch.fnmatch(str(u.username), pat), users)
+	elif tp == 'u':
+		return filter(lambda u, pat=int(pat): u.id == pat, users)
 	elif tp == 'E':
-		return filter(lambda u, pat=pat, fnmatch=fnmatch: fnmatch.fnmatch(str(u.email), pat), userdb.User.All())
+		return filter(lambda u, pat=pat, fnmatch=fnmatch: fnmatch.fnmatch(str(u.email), pat), users)
 	elif tp == 'S':
-		return filter(lambda u, pat=pat, fnmatch=fnmatch: fnmatch.fnmatch(str(STATUS_NAMES.get(u.status)), pat), userdb.User.All())
+		return filter(lambda u, pat=pat, fnmatch=fnmatch: fnmatch.fnmatch(str(STATUS_NAMES.get(u.status)), pat), users)
+	elif tp == 'B':
+		if pat[0] == '<':
+			return filter(lambda u, pat=float(pat[1:]): u.balance<pat, users)
+		elif pat[0] == '>':
+			return filter(lambda u, pat=float(pat[1:]): u.balance>pat, users)
+		elif pat[0] == '=':
+			return filter(lambda u, pat=float(pat[1:]): u.balance==pat, users)
+		elif pat[0:2] == '<=':
+			return filter(lambda u, pat=float(pat[2:]): u.balance<=pat, users)
+		elif pat[0:2] == '>=':
+			return filter(lambda u, pat=float(pat[2:]): u.balance>=pat, users)
+		elif pat[0:2] == '==':
+			return filter(lambda u, pat=float(pat[2:]): u.balance==pat, users)
+		return filter(lambda u, pat=float(pat): u.balance==pat, users)
+	elif tp == 'O':
+		if pat[0] == '<':
+			return filter(lambda u, pat=float(pat[1:]): u.overcharge<pat, users)
+		elif pat[0] == '>':
+			return filter(lambda u, pat=float(pat[1:]): u.overcharge>pat, users)
+		elif pat[0] == '=':
+			return filter(lambda u, pat=float(pat[1:]): u.overcharge==pat, users)
+		elif pat[0:2] == '<=':
+			return filter(lambda u, pat=float(pat[2:]): u.overcharge<=pat, users)
+		elif pat[0:2] == '>=':
+			return filter(lambda u, pat=float(pat[2:]): u.overcharge>=pat, users)
+		elif pat[0:2] == '==':
+			return filter(lambda u, pat=float(pat[2:]): u.overcharge==pat, users)
+		return filter(lambda u, pat=float(pat): u.overcharge==pat, users)
 	raise ValueError('Unknown class: %s'%(tp))
+
+NAG_SECONDS = 10
+NAG_RESOLUTION = 4
 
 class TP:
 	STRING=0
@@ -44,7 +96,6 @@ class PrintConsole(cmd.Cmd):
 			cmd.Cmd.onecmd(self, s)
 		except Exception, e:
 			print '!!! An error occurred during the command:', s
-			import traceback
 			traceback.print_exc()
 	def _expect(self, line, *types):
 		parts = shlex.split(line)
@@ -84,12 +135,12 @@ View information about the users matching the given pattern.'''
 		self.show_pat(users)
 	def show_pat(self, users):
 		print 'Matched', len(users), 'rows:'
-		hdr = '{name:20}{email:32}{status:14}{balance:8}{overcharge:8}'.format(name='USERNAME', email='EMAIL', status='STATUS', balance='BAL', overcharge='OVRCHRG')
+		hdr = '{id:8}{name:20}{email:32}{status:14}{balance:8}{overcharge:8}'.format(id='ID', name='USERNAME', email='EMAIL', status='STATUS', balance='BAL', overcharge='OVRCHRG')
 		print hdr
 		print '='*len(hdr)
 		for u in users:
 			status = STATUS_NAMES.get(u.status, repr(u.status)+'?!')
-			print '{u.username:20}{u.email:32}{status:14}{u.balance:8}{u.overcharge:8}'.format(u=u, status=status)
+			print '{u.id:<8}{u.username:20}{u.email:32}{status:14}{u.balance:<8}{u.overcharge:<8}'.format(u=u, status=status)
 	def confirm(self, prompt):
 		ch = ''
 		while not ch:
@@ -101,7 +152,7 @@ View information about the users matching the given pattern.'''
 
 Set the status of an account.
 
-Currently legal statuses include 0 (NORMAL), 1 (DISABLED), 2 (UNVERIFIED), 3 (PWRESET). See userdb for more information.
+Currently legal statuses are listed in `help statuses`. See userdb for more information.
 
 See also enable, disable, verify, passwd.'''
 		users, status = self._expect(line, (TP.USERS,), (TP.INT,))
@@ -117,11 +168,14 @@ See also enable, disable, verify, passwd.'''
 		'''passwd <user>
 
 Change the password of a user.'''
-		user = self._expect(line, (TP.USER,))
+		user = self._expect(line, (TP.USER,))[0][0]
 		self.show_pat([user])
 		self.confirm('Change password of %s? '%(user.username))
-		u.password = hashlib.sha512(getpass.getpass('Password: ')).hexdigest()
-		u.Update()
+		passwd = getpass.getpass('Password: ')
+		if passwd:
+			passwd = hashlib.sha512(passwd).hexdigest()
+		user.password = passwd
+		user.Update()
 	def do_balance(self, line):
 		'''balance <users> [+|-]<amt>
 
@@ -151,6 +205,57 @@ Set, add, or subtract balance to or from the specified users. Specifying + or - 
 			elif mode == 2:
 				u.balance -= amt
 			u.Update()
+	def do_overcharge(self, line):
+		'''overcharge <users> <ovrchrg>
+
+Set the overcharge of the specified users. Overcharge represents a constant multiple when computing cost; the balance of a user after a job is computed more-or-less as:
+
+balance -= overcharge * num_pages
+
+with the special restriction that, if the new balance as computed by foreknowledge of the number of pages is negative, the job is cancelled.
+
+Overcharge can be negative, in which case users gain balance by printing.'''
+		users, ovrc = self._expect(line, (TP.USERS,), (TP.FLOAT,))
+		self.show_pat(users)
+		self.confirm('Set overcharge to %f? '%(ovrc))
+		for u in users:
+			u.overcharge = ovrc
+			u.Update()
+	def do_create(self, line):
+		'''create <username> <email>
+
+Create a new user account. The account will be immediately active, limited by balance, capable of printing normally, but with zero balance (that would prevent it). Use `balance <username>` to set balance afterward.
+
+You will be prompted for a password for the user. Entering an empty string will lock the account--see `help passwd`.'''
+		username, email = self._expect(line, (TP.STRING,), (TP.STRING,))
+		self.confirm('Create user %s with email %s? '%(username, email))
+		passwd = getpass.getpass('Password: ')
+		if passwd:
+			passwd = hashlib.sha512(passwd).hexdigest()
+		userdb.User.Create(username, passwd, email, 0, 1.0, None, userdb.User.ST_NORMAL)
+	def do_remove(self, line):
+		'''remove <users>
+
+Remove the specified users. This action CANNOT be undone.'''
+		users = self._expect(line, (TP.USERS,))[0]
+		self.show_pat(users)
+		print 'NOTE: You will be asked TWICE whether or not you would like to complete this action.'
+		print 'Deleting users is generally HIGHLY DISCOURAGED, and you SHOULD NOT DO THIS unless you have to.'
+		print 'For a better alternative, see `help status` (or `help disable`).'
+		if not hasattr(self, 'nagged'):
+			print '---PLEASE read the above---'
+			for i in range(NAG_SECONDS * NAG_RESOLUTION):
+				print (NAG_SECONDS - float(i)/NAG_RESOLUTION),
+				sys.stdout.flush()
+				time.sleep(1.0/NAG_RESOLUTION)
+			print
+			self.nagged = True
+			print 'Nag complete, you will not have to wait the next time in this session.'
+		self.confirm('Delete these users?')
+		self.confirm('REALLY delete these users?')
+		for u in users:
+			u.Delete()
+		userdb.db.commit()
 	def do_enable(self, line):
 		'''enable <users>
 
@@ -178,15 +283,39 @@ Alias to `quit`'''
 		print '''User Patterns:
 
 User patterns are used wherever users may be specified. The present implementation is documented as follows:
-The pattern is to be prefixed with a scheme, followed by a colon, as follows:
+A pattern is a disjunction of term patterns; each component is separated by a comma (","). With more than one term pattern, the union of the criteria is generated.
+A term pattern may be specified by a pattern component; these are separated by semicolons (";"). When more than one component is given, the intersection of the criteria is generated.
+A term component may be negated by prefixing a "!".
+The pattern component prefixed with a scheme, followed by a colon, as follows:
 <scheme>:<pattern>
 If the colon is omitted entirely, the scheme defaults to 'U'.
 The schemes are as follows:
 -U: Match against usernames using fnmatch (shell globbing)
+-u: Match against a numeric user id exactly
 -E: Match against emails using fnmatch (shell globbing)
 -S: Match against status names using fnmatch (shell globbing)
+-B: Match against balance. You may prefix a balance with any of <, >, <=, >=, =, ==; if none is provided, = is assumed.
+-O: Match against overcharge. Comparisons are as for balance, above.
+
+Example patterns:
+Users starting with "doe": "U:doe*" or just "doe*"
+Users whose emails don't end with ".edu": "!E:*.edu"
+Users whose balance is below 10.0 and who are not unverified: "B:<10;!S:UNV*"
+Users who are unverified or in password reset: "S:UNV*,S:PWR*"
+Users with no status: "S:*!"
+User id 5: "u:5"
 
 This implementation is subject to change.'''
+	def help_statuses(self, *whatever):
+		print '''User Statuses:
+
+User statuses are singular, orthogonal assignments to users handled by the user system. For more information on
+each one and its implications, please see userdb.
+
+The statuses known to the system are as follows (note that `status` expects a number, but the `S:` userpat
+uses a name; see `help userpat`:'''
+		for val, name in STATUS_NAMES.iteritems():
+			print '%d\t%s'%(val, name)
 
 
 if __name__ == '__main__':
