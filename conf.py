@@ -29,5 +29,5 @@ ALLOWED_EXTENSIONS = ExtenAllowAll()
 VER_CODE_LEN = 16
 MAINTAINERS = [
 	'northug@clarkson.edu',
-	'blannon@clarkson.edu',
+	'lannonbr@clarkson.edu',
 ]
