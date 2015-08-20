@@ -1,0 +1,9 @@
+From: printer@cslabs.clarkson.edu
+To: {{ ', '.join(g.conf.MAINTAINERS) }}
+Subject: User Feedback/Contact
+
+User {{username}} has sent a message to website maintainers; the verbatim content is included below:
+
+--------------------------------------------------------------------------------
+
+{{body}}
