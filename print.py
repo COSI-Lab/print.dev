@@ -67,7 +67,7 @@ def do_set_global_conf():
 # Root view
 @app.route('/')
 def index():
-	return redirect(url_for('main'))
+	return redirect(url_for('print_main'))
 		
 # View for /print/ (a frame set)
 @app.route('/print/')

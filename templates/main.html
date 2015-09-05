@@ -3,13 +3,13 @@
 	<head>
 		<title>CSLABS PRINT SERVICE</title>		
 	</head>
-	<body>
-		<ul style="">
-			{% for navname, url in navigation %}
-				<li><a href="{{ url }}">{{ navname }}</a></li>
-			{% endfor %}
-		</ul>
+	<body style="width:80%;margin: 0px auto; border:5px solid #8AC007">
+	<h1>CSLabs Print Server</h1>
+				{% for navname, url in navigation %}
+				<li style="list-style: outside none none;float:left;padding: 15px;"><a href="{{ url }}"  style="text-decoration: none;color: #666;display: block;font-weight: bold;text-align: center;">{{ navname }}</a></li>
+				{% endfor %}
 		<h1>CSLabs Print Server</h1>
 		<!-- Login goes here-->
+		<iframe src="/print/login/" name="frame">iframes are required to use this site properly</iframe>
 	</body>
 </html>
