@@ -1,32 +1,17 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>Print Server</title>
-		<link rel="stylesheet" type="text/css" href="/static/style.css"/>
-		<script type="text/javascript" src="/static/lib.js"></script>
+		<title>CSLABS PRINT SERVICE</title>		
 	</head>
 	<body>
-		<table id="layout">
-			<tr>
-				<td colspan="3" id="header">
-					CSLabs Print Server
-				</td>
-			</tr>
-			<tr>
-				<td id="ops">
-					<ul>
-						{% for opname, url in operations %}
-							<li><a href="{{ url }}" target="opframe">{{ opname }}</a></li>
-						{% endfor %}
-					</ul>
-				</td>
-				<td id="body">
-					<iframe src="/print/op/null/" name="opframe">iframes are required to use this site properly</iframe>
-				</td>
-				<td id="pending">
-					Pending operations...
-				</td>
-			</tr>
-		</table>
+		<ul style="">
+			{% for navname, url in navigation %}
+				<li><a href="{{ url }}">{{ navname }}</a></li>
+			{% endfor %}
+		</ul>
+		<h1>CSLabs Print Server</h1>
+		<div sytle="">
+			
+		</div>
 	</body>
 </html>
