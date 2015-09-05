@@ -67,25 +67,25 @@ def do_set_global_conf():
 # Root view
 @app.route('/')
 def index():
-	return redirect(url_for('print_main'))
-	
+	return redirect(url_for('main'))
+		
 # View for /print/ (a frame set)
 @app.route('/print/')
 def print_main():
-	return render_template('print_main.html', operations=[['Log In/Out', url_for('loginout')],
-														  ['Register', url_for('register')],
-														  ['Print File', url_for('print_file')],
-														  ['Set password', url_for('passwd')],
-														  ['Reset account password', url_for('reset_pw')],
-														  ['Contact maintainers', url_for('contact')]])
+	return render_template('main.html', navigation=[['Cosi', 'http://cslabs.clarkson.edu/'],
+													['Wiki', 'http://docs.cslabs.clarkson.edu/wiki/Main_Page'],
+													['Print File', url_for('print_file')],
+													['Reset Password', url_for('reset_pw')],
+													['Contact', url_for('contact')]])
+
 
 # Null operation view
-@app.route('/print/op/null/')
+@app.route('/print/null/')
 def null():
-	return render_template('op_null.html')
+	return render_template('null.html')
 	
 # View that redirects to login or logout operations
-@app.route('/print/op/loginout/', methods=['GET', 'POST'])
+@app.route('/print/loginout/', methods=['GET', 'POST'])
 def loginout():
 	if g.user.id == User.NOBODY.id:
 		return redirect(url_for('login'))
@@ -93,7 +93,7 @@ def loginout():
 		return redirect(url_for('logout'))
 
 # Login view operation
-@app.route('/print/op/login/', methods=['GET', 'POST'])
+@app.route('/print/login/', methods=['GET', 'POST'])
 def login():
 	if request.method == 'POST':
 		try:
@@ -117,20 +117,20 @@ def login():
 					return redirect(url_for('print_file'))
 			else:
 				flash('Invalid password', 'error')
-	return render_template('op_login.html')
+	return render_template('login.html')
 
 # Logout view operation
-@app.route('/print/op/logout/', methods=['GET', 'POST'])
+@app.route('/print/logout/', methods=['GET', 'POST'])
 def logout():
 	if request.method == 'POST':
 		g.user = User.NOBODY
 		g.session.uid = User.NOBODY.id
 		g.session.Update()
 		flash('Logged out', 'success')
-	return render_template('op_logout.html')
+	return render_template('main.html')
 	
 # Registration view operation
-@app.route('/print/op/register/', methods=['GET', 'POST'])
+@app.route('/print/register/', methods=['GET', 'POST'])
 def register():
 	if request.method == 'POST':
 		try:
@@ -156,10 +156,10 @@ def register():
 					flash('Invalid Clarkson Email Address', 'error')
 			else:
 				flash('User already exists', 'error')
-	return render_template('op_register.html')
+	return render_template('register.html')
 			
 # Password reset view operation
-@app.route('/print/op/resetpw/', methods=['GET', 'POST'])
+@app.route('/print/resetpw/', methods=['GET', 'POST'])
 def reset_pw():
 	if request.method == 'POST':
 		try:
@@ -187,10 +187,10 @@ def reset_pw():
 						flash('An error occured while sending an email; this is a bug! Tell someone!', 'error')
 					else:
 						flash('An email has been sent with further instructions; please check your mail now.', 'success')
-	return render_template('op_resetpw.html')
+	return render_template('resetpw.html')
 
 # Password reset verification view operation
-@app.route('/print/op/resetverify/')
+@app.route('/print/resetverify/')
 def reset_verify():
 	username = request.args['username']
 	vcode = request.args['vcode']
@@ -206,10 +206,10 @@ def reset_verify():
 	g.session.uid = g.user.id
 	g.session.Update()
 	flash('You are now logged in as yourself; when you are able, you may want to <a href="%s">set your password</a>.'%(url_for('passwd')), 'success')
-	return render_template('op_resetverify.html')
+	return render_template('resetverify.html')
 
 # Password change view operation
-@app.route('/print/op/passwd/', methods=['GET', 'POST'])
+@app.route('/print/passwd/', methods=['GET', 'POST'])
 def passwd():
 	if g.user.id in (User.NOBODY.id, User.ROOT.id):
 		flash('You cannot set the password of this account.', 'error')
@@ -223,10 +223,10 @@ def passwd():
 				g.user.password = hashlib.sha512(password).hexdigest()
 				g.user.Update()
 				flash('Password set', 'success')
-	return render_template('op_passwd.html')
+	return render_template('passwd.html')
 
 # Test page print view operation
-@app.route('/print/op/print_test/')
+@app.route('/print/print_test/')
 def print_test():
 	if g.user.status != User.ST_NORMAL:
 		return 'You can\'t do that! Go away!'
@@ -235,7 +235,7 @@ def print_test():
 		return 'You just printed a test page!  How do you feel about yourself?'
 
 # Print entry point view operation
-@app.route('/print/op/print/', methods=['GET', 'POST'])
+@app.route('/print/', methods=['GET', 'POST'])
 def print_file():
 	if g.user.status == User.ST_PWRESET:
 		flash('A password reset was attempted on this account. It will be cleared.', 'warning')
@@ -253,10 +253,10 @@ def print_file():
 			os.system('lp -U "%s" %s'%(g.user.username, fname))
 			os.unlink(fname)
 			flash('Sent to Printer', 'success')
-	return render_template('op_print.html')
+	return render_template('print.html')
 	
 # Registration verification view operation
-@app.route('/print/op/verify')
+@app.route('/print/verify/')
 def verify():
 	username = request.args['username']
 	vcode = request.args['vcode']
@@ -286,7 +286,7 @@ def contact():
 			smtp = smtplib.SMTP('mail.clarkson.edu')
 			smtp.sendmail('printer@cslabs.clarkson.edu', conf.MAINTAINERS, render_template('contactemail.txt', body = body, username = g.user.username))
 			flash('Message sent successfully!', 'success')
-	return render_template('op_contact.html')
+	return render_template('contact.html')
 
 # Test2 view operation
 @app.route('/print/op/test2/')
