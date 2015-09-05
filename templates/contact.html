@@ -1,0 +1,23 @@
+{% extends "frame.html" %}
+{% block title %}Contact{% endblock %}
+{% block content %}
+<script type="text/javascript">
+function validate() {
+	document.querySelector("#pleasewait").innerHTML = '<div class="flash flc_warning">Please wait, processing your request...<img class="spinner" src="/static/spinner.gif"/></div>';
+	return true;
+}
+</script>
+<span id="pleasewait"></span>
+<p>The following message will be sent to site administrators and maintainers via email. Only the following information will be included:</p>
+<ul>
+	<li>Your username.</li>
+	<li>The time you sent this email.</li>
+	<li>Whatever you write below.</li>
+</ul>
+<p>If you are reporting an error or other fault, please be as explicit as possible, and try to include steps necessary to reproduce it.</p>
+<p>If you are simply looking for more printer balance, just ask nicely :) .</p>
+<form action="?" method="POST" onsubmit="return validate();">
+	<textarea name="body" style="width: 75%; height: 250px;"></textarea><br/>
+	<button type="submit">Submit</button>
+</form>
+{% endblock %}

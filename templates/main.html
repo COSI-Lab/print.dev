@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>CSLABS PRINT SERVICE</title>		
+	</head>
+	<body>
+		<ul style="">
+			{% for navname, url in navigation %}
+				<li><a href="{{ url }}">{{ navname }}</a></li>
+			{% endfor %}
+		</ul>
+		<h1>CSLabs Print Server</h1>
+		<!-- Login goes here-->
+	</body>
+</html>
