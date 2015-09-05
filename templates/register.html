@@ -1,5 +1,6 @@
-{% extends "frame.html" %}
-{% block title %}Login{% endblock %}
+{% extends "main.html" %}
+{% block title %}Register{% endblock %}
+{% block nav %}{{super()}}{% endblock %}
 {% block content %}
 <script type="text/javascript">
 function validate() {
@@ -13,7 +14,8 @@ function validate() {
 }
 </script>
 <span id="pleasewait"></span>
-<form name="regform" action="?" method="POST" onsubmit="return validate();">
+<div style="width:70%;margin: 0px auto; border:5px solid #8AC007">
+<form name="regform" action="?" method="POST" onsubmit="return validate();" style="position:relative;left:30%;">
 	<table>
 		<tr><td>Username:</td><td><input type="text" name="username"/></td></tr>
 		<tr><td>Email:</td><td><input type="text" name="email"/></td></tr>
@@ -22,4 +24,5 @@ function validate() {
 	</table>
 	<button type="submit" name="submit">Register</button>
 </form>
+</div>
 {% endblock %}

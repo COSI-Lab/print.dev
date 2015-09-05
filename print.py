@@ -117,7 +117,7 @@ def login():
 					return redirect(url_for('print_file'))
 			else:
 				flash('Invalid password', 'error')
-	return render_template('login.html')
+	return render_template('main.html')
 
 # Logout view operation
 @app.route('/print/logout/', methods=['GET', 'POST'])
@@ -275,7 +275,7 @@ def verify():
 	return 'What the hell just happened?' 
 
 # Contact view operatoin
-@app.route('/print/op/contact', methods=['GET', 'POST'])
+@app.route('/print/contact', methods=['GET', 'POST'])
 def contact():
 	if request.method == 'POST':
 		try:
