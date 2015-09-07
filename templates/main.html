@@ -1,38 +1,26 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>{% block title %}{% endblock %}CSLABS PRINT SERVICE</title>		
+		<title>{% block title %}{% endblock %}CSLABS PRINT SERVICE</title>
+		<link rel="stylesheet" type="text/css" href="/static/style.css"/>
 	</head>
 	<body>
-	<div style="width:80%;margin: 0px auto; border:5px solid #8AC007">
-	<div>{% block nav %}
-	<h1>CSLabs Print Server</h1>
-		<div>
-			<ul style="list-style: outside none none;">
-				{% for navname, url in navigation %}
-				<li style="float:left;padding: 15px;"><a href="{{ url }}"  style="text-decoration: none;color: #666;display: block;font-weight: bold;text-align: center;">{{ navname }}</a></li>
+		<div >
+			<div id="nav">
+			<ul>
+				{% for navname, url in g.navigation %}
+				<li ><a href="{{ url }}" >{{ navname }}</a></li>
 				{% endfor %}
 			</ul>
+			</div>
+			<div id="header">
 			<h1>CSLabs Print Server</h1>
-		</div>
-		{% endblock %}
+			</div>
 		</div>
 		<!-- Login goes here-->
-		<div>{% block content %} 
-			<div style="width:70%;margin: 0px auto; border:5px solid #8AC007">
-				This is a decription and functionality of print <b>Welcome to Cosi</b>
-			</div >
-			<form action="?" method="POST" style="width:60%;margin: 0px auto; border:5px solid #8AC007">
-				<div style="position:relative;left:35%;">
-					<table style="">
-						<tr><td>Username:</td><td><input type="text" name="username"/></td></tr>
-						<tr><td>Password:</td><td><input type="password" name="password"/></td></tr>
-					</table>
-					<button type="submit" name="submit">Log In</button>
-					<p>If you do not have login</p>
-   	 				<button type="button" onclick="location.href='/print/register/';">Register</button>
-				</div>
-			</form>
-		{% endblock %}</div>
+		<div id="content">
+		{% block content %} 
+		{% endblock %}
+		</div>
 	</body>
 </html>

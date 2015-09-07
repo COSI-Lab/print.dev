@@ -12,6 +12,7 @@ import os
 app = Flask('print')
 app.debug = True
 
+
 # Runs a function with a response after the response has been generated
 def add_after_request(f):
 	if not hasattr(g, 'after_request'):
@@ -63,6 +64,11 @@ def do_get_user_session():
 @app.before_request
 def do_set_global_conf():
 	g.conf = conf
+	g.navigation =[['Cosi', 'http://cslabs.clarkson.edu/'],
+				['Wiki', 'http://docs.cslabs.clarkson.edu/wiki/Main_Page'],
+				['Print File', url_for('print_file')],
+				['Reset Password', url_for('reset_pw')],
+				['Contact', url_for('contact')]]
 
 # Root view
 @app.route('/')
@@ -72,11 +78,7 @@ def index():
 # View for /print/ (a frame set)
 @app.route('/print/')
 def print_main():
-	return render_template('main.html', navigation=[['Cosi', 'http://cslabs.clarkson.edu/'],
-													['Wiki', 'http://docs.cslabs.clarkson.edu/wiki/Main_Page'],
-													['Print File', url_for('print_file')],
-													['Reset Password', url_for('reset_pw')],
-													['Contact', url_for('contact')]])
+	return render_template('login.html')
 
 
 # Null operation view
@@ -117,7 +119,7 @@ def login():
 					return redirect(url_for('print_file'))
 			else:
 				flash('Invalid password', 'error')
-	return render_template('main.html')
+	return render_template('login.html')
 
 # Logout view operation
 @app.route('/print/logout/', methods=['GET', 'POST'])
@@ -127,7 +129,7 @@ def logout():
 		g.session.uid = User.NOBODY.id
 		g.session.Update()
 		flash('Logged out', 'success')
-	return render_template('main.html')
+	return render_template('logout.html')
 	
 # Registration view operation
 @app.route('/print/register/', methods=['GET', 'POST'])

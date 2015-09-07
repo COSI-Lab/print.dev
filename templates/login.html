@@ -1,17 +1,18 @@
 {% extends "main.html" %}
-{% block title %}Login{% endblock %}
-{% block nav %}{{super()}}{% endblock %}
+{% block title %}{% endblock %}
 {% block content %}
-<div sytle="">
-	This is a decription and functionality of print <b>Welcome to Cosi</b>
-</div>
-<form action="?" method="POST">
-	<table>
-		<tr><td>Username:</td><td><input type="text" name="username"/></td></tr>
-		<tr><td>Password:</td><td><input type="password" name="password"/></td></tr>
-	</table>
-	<button type="submit" name="submit">Log In</button>
-	<p>If you do not have login</p>
-   	 <button type="button" onclick="location.href='/print/register/';">Register</button> 
-</form>
+			<div >
+				This is a decription and functionality of print <b>Welcome to Cosi</b>
+			</div >
+			<form action="/print/login/?" method="POST" >
+				<div style="position:relative;left:35%;">
+					<table style="">
+						<tr><td>Username:</td><td><input type="text" name="username"/></td></tr>
+						<tr><td>Password:</td><td><input type="password" name="password"/></td></tr>
+					</table>
+					<button type="submit" name="submit">Log In</button>
+					<p>If you do not have login</p>
+   	 				<button type="button" onclick="location.href='/print/register/';">Register</button>
+				</div>
+			</form>
 {% endblock %}

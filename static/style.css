@@ -1,95 +1,56 @@
-body
-{
-background-color: #223322;
-color: #eeeebb;
+@charset "utf-8";
+
+
+html{
+	background-color:#FFFFFF;	
 }
 
-a:link
-{
-color: #44ff44;
+body{
+background-color: #FFFFFF;
+width:80%;
+margin: 0 auto;
+font-size:20px;
+color: #110b08;	
 }
 
-a:visited
-{
-color: #227722;
-}
+a:link{color: #44ff44;}
 
-#layout
-{
-position: absolute;
-top: 0px;
-left: 0px;
-width: 100%;
-height: 100%;
-border: 1px solid #557777;
-border-collapse: collapse;
-}
+a:visited{color: #227722;}
 
-#layout td
-{
-border: 1px solid #557777;
-vertical-align: top;
-text-align: left;
-}
-
-#layout #header /* XXX Resolving to higher priority */
-{
-text-align: center;
-font-size: 200%;
-height: 1em;
-}
-
-#ops, #pending
-{
-width: 20%;
-}
-
-#body
-{
-height: 100%;
-}
-
-#body iframe
-{
-width: 100%;
-height: 100%;
-border: 0px;
-}
-
-.flash
-{
+.flash{
 width: 100%;
 height: 2em;
 vertical-align: middle;
 text-align: center;
 }
 
-.flc_error
-{
+.flc_error{
 background-color: #440000;
 color: #cccccc;
 }
 
-.flc_success
-{
+.flc_success{
 background-color: #004400;
 color: #cccccc;
 }
 
-.flc_warning
-{
+.flc_warning{
 background-color: #777700;
 color: #cccccc;
 }
 
-.flc_note
-{
+.flc_note{
 background-color: #000044;
-color #cccccc;
+color: #cccccc;
 }
 
-#status
-{
+#layout td{
+border: 1px solid #557777;
+vertical-align: top;
+text-align: left;
+}
+
+#status{
 font-style: italic;
 font-size: 80%;
 position: fixed;
@@ -98,12 +59,65 @@ width: 100%;
 background-color: #220000
 }
 
-.spinner
-{
-text-align: right;
+#header{
+	padding-top: 30px;
+	padding-bottom: 30px;
+	width: 960px;
+	height: 35px;	
 }
 
-#pleasewait
-{
-transition: height 0.5s ease;
+#header h1{
+	text-align: center;
+	font-size: 25px;
+}
+
+#nav {
+  border: none;
+  border: 0px;
+  margin: 0px auto;
+  padding: 0px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #8e8e8e;
+  text-align: center;
+}
+
+#nav ul {
+  left: 100%;
+  top: 0;
+}
+#nav ul li {
+	list-style-type: none;
+  	float: left;
+  	padding: 0px 5px 0px 5px;
+}
+#nav ul li a {
+  color: #666666;
+  display: block;
+  font-weight: bold;
+  line-height: 30px;
+  padding: 0px 23px;
+  text-align: center;
+  text-decoration: none;
+}
+#nav ul li a:hover {
+  color: #000000;
+  text-decoration: none;
+}
+
+#nav .active > a {
+  background: #36552c;
+  box-shadow: 0 -4px 0 #36552c, 0 -5px 0 #515c4d, 0 -6px 0 #36552c;
+  color: #ffffff;
+}
+
+#nav .active > a:hover {
+  color: white;
+}
+
+
+#content{
+	color: #000000;
+	width: 960px;
+	margin: 50px auto;
 }
