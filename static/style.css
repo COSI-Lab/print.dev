@@ -7,10 +7,15 @@ html{
 
 body{
 background-color: #FFFFFF;
-width:80%;
+width:60%;
 margin: 0 auto;
 font-size:20px;
 color: #110b08;	
+}
+
+button{
+color:#CC0099;
+padding:20px;
 }
 
 a:link{color: #44ff44;}
@@ -18,41 +23,48 @@ a:link{color: #44ff44;}
 a:visited{color: #227722;}
 
 .flash{
-width: 100%;
-height: 2em;
+width: 40%;
+font-weight: bold;
+margin: auto;
 vertical-align: middle;
 text-align: center;
+font-style: italic;
 }
 
 .flc_error{
-background-color: #440000;
-color: #cccccc;
+background-color: #CC0000;
+color: #330000;
 }
 
 .flc_success{
-background-color: #004400;
-color: #cccccc;
+background-color: #009900;
+color: #330000;
 }
 
 .flc_warning{
-background-color: #777700;
-color: #cccccc;
+background-color: #3300FF;
+color: #330000;
 }
 
 .flc_note{
-background-color: #000044;
-color: #cccccc;
+background-color: #FFFFFF;
+color: #330000;
 }
 
-#layout td{
+table{
+padding-top: 10px;
+padding-bottom: 10px;
+}
+
+td{
 border: 1px solid #557777;
-vertical-align: top;
-text-align: left;
+vertical-align: middle;
+text-align: middle;
 }
 
 #status{
 font-style: italic;
-font-size: 80%;
+font-size: 60%;
 position: fixed;
 bottom: 0px;
 width: 100%;
@@ -83,7 +95,7 @@ background-color: #220000
 }
 
 #nav ul {
-  left: 100%;
+  left: 60%;
   top: 0;
 }
 #nav ul li {
@@ -115,9 +127,12 @@ background-color: #220000
   color: white;
 }
 
-
 #content{
 	color: #000000;
-	width: 960px;
-	margin: 50px auto;
+	width: 60%;
+	margin: 30px auto;
+}
+
+a{
+	text-decoration: none;
 }

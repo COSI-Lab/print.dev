@@ -66,18 +66,18 @@ def do_set_global_conf():
 	g.conf = conf
 	g.navigation =[['Cosi', 'http://cslabs.clarkson.edu/'],
 				['Wiki', 'http://docs.cslabs.clarkson.edu/wiki/Main_Page'],
-				['Print File', url_for('print_file')],
+				['Print', 'http://localhost:8080/print/login/?'],
 				['Reset Password', url_for('reset_pw')],
 				['Contact', url_for('contact')]]
 
 # Root view
 @app.route('/')
 def index():
-	return redirect(url_for('print_main'))
+	return redirect(url_for('entry_point'))
 		
 # View for /print/ (a frame set)
 @app.route('/print/')
-def print_main():
+def entry_point():
 	return render_template('login.html')
 
 
@@ -155,7 +155,7 @@ def register():
 					else:
 						flash('Created account %s. A verification email has been sent. Check your email.'%(newuser.username), 'success')
 				else: 
-					flash('Invalid Clarkson Email Address', 'error')
+					flash('Invalid Clarkson Email Address. Please retype you Clarkson email correctly', 'error')
 			else:
 				flash('User already exists', 'error')
 	return render_template('register.html')
@@ -291,6 +291,6 @@ def contact():
 	return render_template('contact.html')
 
 # Test2 view operation
-@app.route('/print/op/test2/')
+@app.route('/print/test2/')
 def test2():
 	return 'Hello from test2!'

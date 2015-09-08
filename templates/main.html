@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>{% block title %}{% endblock %}CSLABS PRINT SERVICE</title>
+		<title>CSLABS PRINT SERVICE</title>
 		<link rel="stylesheet" type="text/css" href="/static/style.css"/>
 	</head>
 	<body>
@@ -14,10 +14,15 @@
 			</ul>
 			</div>
 			<div id="header">
-			<h1>CSLabs Print Server</h1>
+			<h1>CSLabs Print Server{% block header %}{% endblock %}</h1>
 			</div>
 		</div>
 		<!-- Login goes here-->
+		{% with messages = g.flashes %}
+			{% for msg, cat in messages %}
+				<div class="flash flc_{{ cat }}">{{ msg|safe }}</div>
+			{% endfor %}
+		{% endwith %}
 		<div id="content">
 		{% block content %} 
 		{% endblock %}
