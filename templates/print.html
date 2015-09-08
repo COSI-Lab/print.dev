@@ -14,7 +14,7 @@ You have {{ g.user.balance }} pages remaining.
 {% if nag_contact %}
 	For more balance or help, you can always contact a maintainer in person or <a href="/print/contact">by mail</a>.
 {% endif %}
-<form action="?" method="POST" enctype="multipart/form-data">
+<form action="/print/printing/?" method="POST" enctype="multipart/form-data">
 	<table>
 		<tr><td>File:</td><td><input type="file" name="file"/></td></tr>
 	</table>

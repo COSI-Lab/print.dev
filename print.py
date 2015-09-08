@@ -66,9 +66,10 @@ def do_set_global_conf():
 	g.conf = conf
 	g.navigation =[['Cosi', 'http://cslabs.clarkson.edu/'],
 				['Wiki', 'http://docs.cslabs.clarkson.edu/wiki/Main_Page'],
-				['Print', 'http://localhost:8080/print/login/?'],
+				['Login', 'http://localhost:8080/print/login/?'],
+				['Register ', 'http://localhost:8080/print/register/?'],
 				['Reset Password', url_for('reset_pw')],
-				['Contact', url_for('contact')]]
+				['Contact Admin', url_for('contact')]]
 
 # Root view
 @app.route('/')
@@ -112,11 +113,12 @@ def login():
 				else:
 					if newuser.status == User.ST_UNVERIFIED:
 						flash('Your account is unverified; you will not be allowed to print. Please check your email for a verification email.', 'warning')
+						return render_template('login.html')
 					g.user = newuser
 					g.session.uid = g.user.id
 					g.session.Update()
 					flash('Logged in as %s'%(newuser.username), 'success')
-					return redirect(url_for('print_file'))
+					return render_template('print.html')
 			else:
 				flash('Invalid password', 'error')
 	return render_template('login.html')
@@ -237,7 +239,7 @@ def print_test():
 		return 'You just printed a test page!  How do you feel about yourself?'
 
 # Print entry point view operation
-@app.route('/print/', methods=['GET', 'POST'])
+@app.route('/print/printing/', methods=['GET', 'POST'])
 def print_file():
 	if g.user.status == User.ST_PWRESET:
 		flash('A password reset was attempted on this account. It will be cleared.', 'warning')
@@ -271,7 +273,11 @@ def verify():
 			user.status = User.ST_NORMAL
 			user.balance = conf.DEFAULT_BALANCE
 			user.Update()
-			return 'Success! Your account was activated.'
+			g.session.uid = user.id
+			g.session.Update()
+			g.user = user
+			flash('Your account was activated.', 'success')
+			return print_file()
 		else:
 			return 'Bad verification code'
 	return 'What the hell just happened?' 

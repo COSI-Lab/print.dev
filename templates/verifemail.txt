@@ -5,4 +5,4 @@ Subject: Printer Overflow Verification System
 Dear {{username}},
 	This email address, {{email}} has been used in registration for Print.Dev. Follow the link below to verify and activate your account. You will not be able to print until you verify your email!
 
-	http://print.cslabs.clarkson.edu/print/op/verify?username={{username}}&vcode={{vcode|urlencode}}
+	http://print.cslabs.clarkson.edu/print/verify?username={{username}}&vcode={{vcode|urlencode}}
