@@ -64,12 +64,14 @@ def do_get_user_session():
 @app.before_request
 def do_set_global_conf():
 	g.conf = conf
-	g.navigation =[['Cosi', 'http://cslabs.clarkson.edu/'],
-				['Wiki', 'http://docs.cslabs.clarkson.edu/wiki/Main_Page'],
-				['Login', 'http://localhost:8080/print/login/?'],
-				['Register ', 'http://localhost:8080/print/register/?'],
+	g.navigation =[
+				#['Cosi', 'http://cslabs.clarkson.edu/'],
+				#['Wiki', 'http://docs.cslabs.clarkson.edu/wiki/Main_Page'],
+				['Login', 'http://localhost:8080/print/login/'],
+				['Register ', 'http://localhost:8080/print/register/'],
 				['Reset Password', url_for('reset_pw')],
-				['Contact Admin', url_for('contact')]]
+				['Contact Admin', url_for('contact')],
+				['logout ', 'http://localhost:8080/print/logout/']]
 
 # Root view
 @app.route('/')
@@ -124,14 +126,14 @@ def login():
 	return render_template('login.html')
 
 # Logout view operation
-@app.route('/print/logout/', methods=['GET', 'POST'])
+@app.route('/print/logout/', methods=[ 'GET', 'POST'])
 def logout():
 	if request.method == 'POST':
 		g.user = User.NOBODY
 		g.session.uid = User.NOBODY.id
 		g.session.Update()
 		flash('Logged out', 'success')
-	return render_template('logout.html')
+	return render_template('login.html')
 	
 # Registration view operation
 @app.route('/print/register/', methods=['GET', 'POST'])
@@ -300,3 +302,5 @@ def contact():
 @app.route('/print/test2/')
 def test2():
 	return 'Hello from test2!'
+
+
