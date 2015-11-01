@@ -24,8 +24,8 @@ class ExtenAllowAll(object):
 		return True
 
 DEFAULT_BALANCE = 200
-#ALLOWED_EXTENSIONS = sorted(["txt", "pdf", "ps", "png", "jpg", "jpeg", "gif", "tex", "prn", "c", "cpp", "h", "hpp", "java", "pl", "py", "php", "sh", "b", "xml", "conf", "asm", "bat", "bib", "cs", "erl", "ini", "js", "lisp", "sql", "m", "pas", "patch", "pro", "scm", "hs"])
-ALLOWED_EXTENSIONS = ExtenAllowAll()
+ALLOWED_EXTENSIONS = sorted(["txt", "pdf", "ps", "png", "jpg", "jpeg", "gif", "tex", "prn", "c", "cpp", "h", "hpp", "java", "pl", "py", "php", "sh", "b", "xml", "conf", "asm", "bat", "bib", "cs", "erl", "ini", "js", "lisp", "sql", "m", "pas", "patch", "pro", "scm", "hs", "sol"])
+#ALLOWED_EXTENSIONS = ExtenAllowAll()
 VER_CODE_LEN = 16
 MAINTAINERS = [
 	'northug@clarkson.edu',

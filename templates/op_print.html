@@ -18,6 +18,8 @@ You have {{ g.user.balance }} pages remaining.
 <form action="?" method="POST" enctype="multipart/form-data">
 	<table>
 		<tr><td>File:</td><td><input type="file" name="file"/></td></tr>
+		<tr><td>Copies (default 1):</td><td><input value="1" type="number" name="copies"/></td></tr>
+		<tr><td>Pages (default all):</td><td><input type="text" name="pages"/></td></tr>
 	</table>
 	<button type="submit" name="submit">Print</button>
 </form>

@@ -13,7 +13,7 @@ def match_users(pat):
 	res = set()
 	for part in pat.split(','):
 		res |= match_terms(part)
-	return res
+	return sorted(list(res), key=lambda u: u.id)
 
 def match_terms(pat):
 	# XXX reimplement?
@@ -69,6 +69,23 @@ def match_pat(pat, users):
 		elif pat[0:2] == '==':
 			return filter(lambda u, pat=float(pat[2:]): u.overcharge==pat, users)
 		return filter(lambda u, pat=float(pat): u.overcharge==pat, users)
+	elif tp == 'x':
+		field, col, n = pat.partition(':')
+		if col:
+			n = int(n)
+		else:
+			n = 2
+		attr = {'U': 'username', 'E': 'email', 'S': 'status', 'B': 'balance', 'O': 'overcharge'}.get(field)
+		if not attr:
+			raise ValueError('%s not a valid x-field'%(field,))
+		bins = {}
+		for u in users:
+			val = getattr(u, attr)
+			if val not in bins:
+				bins[val] = [u]
+			else:
+				bins[val].append(u)
+		return sum(filter(lambda bin, n=n: len(bin) >= n, bins.values()), [])
 	raise ValueError('Unknown class: %s'%(tp))
 
 NAG_SECONDS = 10
@@ -296,6 +313,7 @@ The schemes are as follows:
 -S: Match against status names using fnmatch (shell globbing)
 -B: Match against balance. You may prefix a balance with any of <, >, <=, >=, =, ==; if none is provided, = is assumed.
 -O: Match against overcharge. Comparisons are as for balance, above.
+-x: Match non-unique values. pattern is one of U, E, S, B, O as above, possibly followed by ":<n>" for integer <n> as the lower bound of repetitions (def. 2).
 
 Example patterns:
 Users starting with "doe": "U:doe*" or just "doe*"
@@ -304,6 +322,9 @@ Users whose balance is below 10.0 and who are not unverified: "B:<10;!S:UNV*"
 Users who are unverified or in password reset: "S:UNV*,S:PWR*"
 Users with no status: "S:*!"
 User id 5: "u:5"
+Users with the same email address as some other user in the set: x:E
+Users with unique statuses: !x:S
+Verified users who share their balance with more than 5 other users: x:B:6;S:NOR*
 
 This implementation is subject to change.'''
 	def help_statuses(self, *whatever):

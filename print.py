@@ -1,6 +1,7 @@
 import hashlib
 import smtplib
 import base64
+import re
 #import urllib
 
 from flask import Flask, render_template, redirect, url_for, request, g, flash
@@ -11,6 +12,8 @@ import os
 
 app = Flask('print')
 app.debug = True
+
+valid_page = re.compile("^[-,0-9]*$")
 
 # Runs a function with a response after the response has been generated
 def add_after_request(f):
@@ -245,12 +248,20 @@ def print_file():
 		flash('Account disabled or not verified', 'error')
 	elif request.method == 'POST':
 		rfile = request.files['file']
+		copies = int(request.values['copies'])
+		pages = request.values['pages']
+		if not valid_page.match(pages):
+			flash('Bad page format', 'error')
+			return render_template("op_print.html")	
 		if rfile.filename.rpartition('.')[2] not in conf.ALLOWED_EXTENSIONS:
 			flash('Bad file extension (consider printing to PDF)', 'error')
 		else:
 			fname = os.tmpnam()+'.'+rfile.filename.rpartition('.')[2]
 			request.files['file'].save(fname)
-			os.system('lp -U "%s" %s'%(g.user.username, fname))
+			if pages:
+				os.system('lp -n %d -P %s -U "%s" %s'%(copies, pages, g.user.username, fname))
+			else:
+				os.system('lp -n %d -U "%s" %s'%(copies, g.user.username, fname))
 			os.unlink(fname)
 			flash('Sent to Printer', 'success')
 	return render_template('op_print.html')
