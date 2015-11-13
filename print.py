@@ -247,21 +247,25 @@ def print_file():
 	if g.user.status != User.ST_NORMAL:
 		flash('Account disabled or not verified', 'error')
 	elif request.method == 'POST':
+		options = []
 		rfile = request.files['file']
-		copies = int(request.values['copies'])
-		pages = request.values['pages']
+		copies = request.values.get('copies', 1, int)
+		options.append('-n %d'%(copies,))
+		pages = request.values.get('pages', '')
 		if not valid_page.match(pages):
 			flash('Bad page format', 'error')
 			return render_template("op_print.html")	
+		if pages:
+			options.append('-P "%s"'%(pages,))
+		duplex = request.values.get('duplex', False, bool)
+		options.append('-o sides=two-sided-long-edge' if duplex else '-o sides=one-sided')
+		options.append('-U "%s"'%(g.user.username,))
 		if rfile.filename.rpartition('.')[2] not in conf.ALLOWED_EXTENSIONS:
 			flash('Bad file extension (consider printing to PDF)', 'error')
 		else:
 			fname = os.tmpnam()+'.'+rfile.filename.rpartition('.')[2]
 			request.files['file'].save(fname)
-			if pages:
-				os.system('lp -n %d -P %s -U "%s" %s'%(copies, pages, g.user.username, fname))
-			else:
-				os.system('lp -n %d -U "%s" %s'%(copies, g.user.username, fname))
+			os.system('lp %s %s'%(' '.join(options), fname))
 			os.unlink(fname)
 			flash('Sent to Printer', 'success')
 	return render_template('op_print.html')
