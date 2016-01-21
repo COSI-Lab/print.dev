@@ -25,9 +25,12 @@ class ExtenAllowAll(object):
 
 DEFAULT_BALANCE = 200
 ALLOWED_EXTENSIONS = sorted(["txt", "pdf", "ps", "png", "jpg", "jpeg", "gif", "tex", "prn", "c", "cpp", "h", "hpp", "java", "pl", "py", "php", "sh", "b", "xml", "conf", "asm", "bat", "bib", "cs", "erl", "ini", "js", "lisp", "sql", "m", "pas", "patch", "pro", "scm", "hs", "sol"])
+CONVERTABLE_EXTENSIONS = sorted(["docx", "doc","odt","pptx","ppt","odp","xlsx","xls","ods","csv","odf","odg","rtf"])
+ALL_EXTENSIONS = sorted(ALLOWED_EXTENSIONS+CONVERTABLE_EXTENSIONS)
 #ALLOWED_EXTENSIONS = ExtenAllowAll()
 VER_CODE_LEN = 16
 MAINTAINERS = [
 	'northug@clarkson.edu',
 	'lannonbr@clarkson.edu',
 ]
+MX = 'aspmx.l.google.com'

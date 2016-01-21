@@ -2,10 +2,11 @@ import hashlib
 import smtplib
 import base64
 import re
+import traceback
 #import urllib
 
 from flask import Flask, render_template, redirect, url_for, request, g, flash
-from userdb import User, Group, AccessEntry, AccessToken, DBError, NoSuchEntity
+from userdb import User, Group, AccessEntry, AccessToken, DBError, NoSuchEntity, TooManyEntities
 from sessiondb import Session
 import conf
 import os
@@ -149,10 +150,11 @@ def register():
 				if validate_email(email):
 					newuser = User.Create(username, hashlib.sha512(password).hexdigest(), email, 0, vcode=base64.b64encode(os.urandom(conf.VER_CODE_LEN)), status=User.ST_UNVERIFIED)
 					try:
-						smtp=smtplib.SMTP('mail.clarkson.edu') #Moved up to avoid user ending session before email can be sent...
+						smtp=smtplib.SMTP(conf.MX) #Moved up to avoid user ending session before email can be sent...
 						smtp.sendmail('printer@cslabs.clarkson.edu', [newuser.email],render_template('verifemail.txt', vcode=newuser.vcode, username=newuser.username, email=newuser.email)) 
 					except Exception:
 						flash('An error occurred while sending an email. This is probably a bug; tell someone!', 'error')
+						traceback.print_exc()
 					else:
 						flash('Created account %s. A verification email has been sent. Check your email.'%(newuser.username), 'success')
 				else: 
@@ -171,9 +173,16 @@ def reset_pw():
 			flash('Bad request', 'error')
 		else:
 			try:
-				user = User.FromEmail(email)
+				if 'uid' in request.values:
+					user = User.FromID(request.values.get('uid', -1, int))
+				else:
+					user = User.FromEmail(email)
 			except NoSuchEntity:
-				flash('User with that email does not exist.', 'error')
+				flash('User with that identifier does not exist.', 'error')
+			except TooManyEntities:
+				flash('Ambiguous identifier; please select an account below.', 'error')
+				users = User.FromEmail(email, True)
+				return render_template('op_resetpw_mult.html', users=users, email=email)
 			else:
 				if user.status == User.ST_PWRESET:
 					flash('A password reset is already in progress for this account.', 'error')
@@ -182,14 +191,15 @@ def reset_pw():
 				else:
 					user.status = User.ST_PWRESET
 					user.vcode = base64.b64encode(os.urandom(conf.VER_CODE_LEN))
-					user.Update()
 					try:
-						smtp = smtplib.SMTP('mail.clarkson.edu')
+						smtp = smtplib.SMTP(conf.MX)
 						smtp.sendmail('printer@cslabs.clarkson.edu', [user.email], render_template('pwresetemail.txt', email = user.email, vcode = user.vcode, username = user.username))
 					except Exception:
 						flash('An error occured while sending an email; this is a bug! Tell someone!', 'error')
+						traceback.print_exc()
 					else:
 						flash('An email has been sent with further instructions; please check your mail now.', 'success')
+						user.Update()
 	return render_template('op_resetpw.html')
 
 # Password reset verification view operation
@@ -260,14 +270,25 @@ def print_file():
 		duplex = request.values.get('duplex', False, bool)
 		options.append('-o sides=two-sided-long-edge' if duplex else '-o sides=one-sided')
 		options.append('-U "%s"'%(g.user.username,))
-		if rfile.filename.rpartition('.')[2] not in conf.ALLOWED_EXTENSIONS:
-			flash('Bad file extension (consider printing to PDF)', 'error')
-		else:
-			fname = os.tmpnam()+'.'+rfile.filename.rpartition('.')[2]
+		if rfile.filename.rpartition('.')[2] in conf.ALLOWED_EXTENSIONS:
+                        fname = os.tmpnam()+'.'+rfile.filename.rpartition('.')[2]
 			request.files['file'].save(fname)
-			os.system('lp %s %s'%(' '.join(options), fname))
-			os.unlink(fname)
-			flash('Sent to Printer', 'success')
+                        os.system('lp %s %s'%(' '.join(options), fname))
+                        os.unlink(fname)
+                        flash('Sent to Printer', 'success')
+		elif rfile.filename.rpartition('.')[2] in conf.CONVERTABLE_EXTENSIONS:
+                        fname = os.tmpnam()+'.'+rfile.filename.rpartition('.')[2]
+                        request.files['file'].save(fname)
+			tmp_fold = os.path.dirname(fname)
+			os.system('soffice --headless --convert-to pdf --outdir %s %s'%(tmp_fold,fname))
+			conv_base, tmp_ext = os.path.splitext(fname);
+			fname_pdf = conv_base+'.pdf'
+			os.system('lp %s %s'%(' '.join(options), fname_pdf))
+                        os.unlink(fname)
+			os.unlink(fname_pdf)
+                        flash('Sent to Printer', 'success')
+		else:
+			flash('Bad file extension (consider printing to PDF)', 'error')
 	return render_template('op_print.html')
 	
 # Registration verification view operation
@@ -298,7 +319,7 @@ def contact():
 		except KeyError:
 			flash('Bad request', 'error')
 		else:
-			smtp = smtplib.SMTP('mail.clarkson.edu')
+			smtp = smtplib.SMTP(conf.MX)
 			smtp.sendmail('printer@cslabs.clarkson.edu', conf.MAINTAINERS, render_template('contactemail.txt', body = body, username = g.user.username))
 			flash('Message sent successfully!', 'success')
 	return render_template('op_contact.html')

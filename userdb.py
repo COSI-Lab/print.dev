@@ -200,9 +200,11 @@ class NoSuchEntity(DBError):
 class TooManyEntities(DBError):
 	pass
 
-def _instantiate(cls, rows, attrib, val):
+def _instantiate(cls, rows, attrib, val, mult=False):
 	if not rows:
 		raise NoSuchEntity(cls, attrib, val)
+	if mult:
+		return [cls(*row) for row in rows]
 	if len(rows)>1:
 		raise TooManyEntities(cls, attrib, val)
 	return cls(*rows[0])
@@ -378,9 +380,9 @@ class User(object):
 		cur.execute('SELECT id, username, password, email, balance, overcharge, vcode, status FROM users WHERE username = ?', (name,))
 		return _instantiate(cls, cur.fetchall(), 'name', name)
 	@classmethod
-	def FromEmail(cls, email):
+	def FromEmail(cls, email, mult=False):
 		cur.execute('SELECT id, username, password, email, balance, overcharge, vcode, status FROM users WHERE email = ?', (email,))
-		return _instantiate(cls, cur.fetchall(), 'email', email)
+		return _instantiate(cls, cur.fetchall(), 'email', email, mult)
 	@classmethod
 	def Create(cls, username, password, email, balance, overcharge=1, vcode=None, status=ST_NORMAL):
 		cur.execute('INSERT INTO users (username, password, email, limitby, balance, overcharge, vcode, status) VALUES(?, ?, ?, "balance", ?, ?, ?, ?)', (username, password, email, balance, overcharge, vcode, status))
