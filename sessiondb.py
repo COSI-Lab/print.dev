@@ -29,10 +29,11 @@ the Session, or raise a NoSuchEntity error.
 '''
 
 import sqlite3
+import os
 
 from userdb import _instantiate, User
 
-db = sqlite3.connect('sessions.db')
+db = sqlite3.connect(os.path.join(os.path.dirname(__file__), 'sessions.db'), check_same_thread = False)
 cur = db.cursor()
 
 class Session(object):

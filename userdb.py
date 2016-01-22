@@ -187,8 +187,9 @@ even harmful things!
 '''
 
 import sqlite3
+import os
 
-db = sqlite3.connect('/etc/pykota/pykota.db')
+db = sqlite3.connect(os.path.join(os.path.dirname(__file__), 'pykota.db'), check_same_thread = False)
 cur = db.cursor()
 
 class DBError(Exception):
