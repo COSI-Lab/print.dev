@@ -270,13 +270,13 @@ def print_file():
 		duplex = request.values.get('duplex', False, bool)
 		options.append('-o sides=two-sided-long-edge' if duplex else '-o sides=one-sided')
 		options.append('-U "%s"'%(g.user.username,))
-		if rfile.filename.rpartition('.')[2] in conf.ALLOWED_EXTENSIONS:
+		if rfile.filename.rpartition('.')[2].lower() in conf.ALLOWED_EXTENSIONS:
                         fname = os.tmpnam()+'.'+rfile.filename.rpartition('.')[2]
 			request.files['file'].save(fname)
                         os.system('lp %s %s'%(' '.join(options), fname))
                         os.unlink(fname)
                         flash('Sent to Printer', 'success')
-		elif rfile.filename.rpartition('.')[2] in conf.CONVERTABLE_EXTENSIONS:
+		elif rfile.filename.rpartition('.')[2].lower() in conf.CONVERTABLE_EXTENSIONS:
                         fname = os.tmpnam()+'.'+rfile.filename.rpartition('.')[2]
                         request.files['file'].save(fname)
 			tmp_fold = os.path.dirname(fname)
