@@ -262,14 +262,19 @@ def print_file():
 		copies = request.values.get('copies', 1, int)
 		options.append('-n %d'%(copies,))
 		pages = request.values.get('pages', '')
+		collate = request.values.get('collate', '')
 		if not valid_page.match(pages):
 			flash('Bad page format', 'error')
 			return render_template("op_print.html")	
 		if pages:
 			options.append('-P "%s"'%(pages,))
+		if collate:
+			options.append('-o Collate=True')
 		duplex = request.values.get('duplex', False, bool)
 		options.append('-o sides=two-sided-long-edge' if duplex else '-o sides=one-sided')
+		options.append('-o media=Letter')
 		options.append('-U "%s"'%(g.user.username,))
+		options.append('-t \'%s:%s\''%(g.user.username.replace("'", '_'), rfile.filename.replace("'", '_')))
 		if rfile.filename.rpartition('.')[2].lower() in conf.ALLOWED_EXTENSIONS:
                         fname = os.tmpnam()+'.'+rfile.filename.rpartition('.')[2]
 			request.files['file'].save(fname)
@@ -278,7 +283,7 @@ def print_file():
                         flash('Sent to Printer', 'success')
 		elif rfile.filename.rpartition('.')[2].lower() in conf.CONVERTABLE_EXTENSIONS:
                         fname = os.tmpnam()+'.'+rfile.filename.rpartition('.')[2]
-                        request.files['file'].save(fname)
+			request.files['file'].save(fname)
 			tmp_fold = os.path.dirname(fname)
 			os.system('soffice --headless --convert-to pdf --outdir %s %s'%(tmp_fold,fname))
 			conv_base, tmp_ext = os.path.splitext(fname);
@@ -316,11 +321,12 @@ def contact():
 	if request.method == 'POST':
 		try:
 			body = request.form['body']
+			email = request.form['email']
 		except KeyError:
 			flash('Bad request', 'error')
 		else:
 			smtp = smtplib.SMTP(conf.MX)
-			smtp.sendmail('printer@cslabs.clarkson.edu', conf.MAINTAINERS, render_template('contactemail.txt', body = body, username = g.user.username))
+			smtp.sendmail('printer@cslabs.clarkson.edu', conf.MAINTAINERS, render_template('contactemail.txt', email = email, body = body, username = g.user.username, useremail = g.user.email))
 			flash('Message sent successfully!', 'success')
 	return render_template('op_contact.html')
 
