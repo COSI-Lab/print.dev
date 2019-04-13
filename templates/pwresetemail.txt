@@ -1,7 +1,0 @@
-From: printer@cslabs.clarkson.edu
-To: {{email}}
-Subject: Printer Account Reset
-
-An attempt was made to reset your account credentials. If you are not responsible for this action, you can safely disregard this email. Otherwise, please follow the link below to complete this process:
-
-http://print.cslabs.clarkson.edu/print/op/resetverify?username={{username}}&vcode={{vcode|urlencode}}

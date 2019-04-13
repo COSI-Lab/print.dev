@@ -1,120 +1,50 @@
 
 @import url(https://fonts.googleapis.com/css?family=Open+Sans);
-body
-{
-font-family: "Open Sans";
-background-color: #445544;
-color: #eeeebb;
-margin:0;
-padding:0;
+body {
+	font-family: "Open Sans";
+	background-color: #445544;
+	color: #eeeebb;
+	margin:0;
+	padding:0;
 }
 
-a:link
-{
-color: white;
+a:link {
+	color: white;
 }
 
-a:visited
-{
-color: #999999;
+a:visited {
+	color: #999999;
 }
 
-#layout
-{
-position: absolute;
-top: 42px;
-left: 0px;
-width: 100%;
-height: 100%;
-border: 1px solid rgba(255,255,255,0.4);
-border-collapse: collapse;
-}
-
-#layout td
-{
-border: 1px solid #557777;
-vertical-align: top;
-text-align: left;
-}
-
-#layout #header /* XXX Resolving to higher priority */
-{
-text-align: center;
-font-size: 200%;
-height: 1em;
-}
-
-#ops
-{
-width: 20%;
-}
-
-#body
-{
-height: 100%;
-}
-
-#body iframe
-{
-width: 100%;
-height: 100%;
-border: 0px;
-}
-
-.flash
-{
-width: 100%;
-height: 2em;
-vertical-align: middle;
-text-align: center;
+.flash {
+	width: 100%;
+	height: 2em;
+	vertical-align: middle;
+	text-align: center;
 }
 
 .flash::last-child {
-margin-bottom: 1em;
+	margin-bottom: 1em;
 }
 
-.flc_error
-{
-background-color: #440000;
-color: #cccccc;
+.flc_error {
+	background-color: #440000;
+	color: #cccccc;
 }
 
-.flc_success
-{
-background-color: #004400;
-color: #cccccc;
+.flc_success {
+	background-color: #004400;
+	color: #cccccc;
 }
 
-.flc_warning
-{
-background-color: #777700;
-color: #cccccc;
+.flc_warning {
+	background-color: #777700;
+	color: #cccccc;
 }
 
-.flc_note
-{
-background-color: #000044;
-color #cccccc;
-}
-
-#status
-{
-font-style: italic;
-font-size: 80%;
-position: fixed;
-bottom: 0px;
-width: 100%;
-background-color: #220000
-}
-
-.spinner
-{
-text-align: right;
-}
-
-#pleasewait
-{
-transition: height 0.5s ease;
+.flc_note {
+	background-color: #000044;
+	color #cccccc;
 }
 
 #printForm {

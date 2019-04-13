@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Print Server</title>
+		<link rel="stylesheet" type="text/css" href="/static/style.css"/>
+		<meta name="theme-color" content="#00ff00">
+		<!-- not sure what webcomponents are used fore here? -->
+		<script src="{{ url_for('static', filename='webcomponents.min.js') }}"></script>
+		<link rel="import" href="{{ url_for('static', filename='cosi-nav.html') }}">
+	</head>
+	<body>
+		<!-- nav bar at the top -->
+		<cosi-nav></cosi-nav>
+		<!-- any notifications there are -->
+		{% with messages = g.flashes %}
+			{% for msg, cat in messages %}
+				<div class="flash flc_{{ cat }}">{{ msg|safe }}</div>
+			{% endfor %}
+		{% endwith %}
+		<!-- The form to print files -->
+		<form id="printForm" action="?" method="POST" enctype="multipart/form-data">
+			<table>
+				<tr><td>File:</td><td><input type="file" name="file"/></td></tr>
+				<tr><td>Copies (default 1):</td><td><input value="1" type="number" name="copies"/></td></tr>
+				<tr><td>Pages (default all):</td><td><input type="text" name="pages"/></td></tr>
+				<tr><td>Duplex (double-sided):</td><td><input type="checkbox" name="duplex" checked/></td></tr>
+				<tr><td style="text-decoration-line: underline; text-decoration-style: dotted;" title="Interleave duplicate pages; e.g., 1,2,3,1,2,3,1,2,3 instead of 1,1,1,2,2,2,3,3,3">Collate:</td><td><input type="checkbox" name="collate" checked/></td></tr>
+			</table>
+			<button type="submit" name="submit">Print</button>
+		</form>
+		<p>Allowed extensions: {{ ', '.join(g.conf.ALL_EXTENSIONS) }}</p>
+		<!-- Submit bugs here! -->
+		<div>Proudly open source. <a href="https://github.com/COSI-Lab/print.dev">https://github.com/COSI-Lab/print.dev</a></div>
+	</body>
+</html>
